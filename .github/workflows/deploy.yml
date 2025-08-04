@@ -1,0 +1,187 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:  # Allow manual triggering
+
+env:
+  DOCKER_BUILDKIT: 1
+  COMPOSE_DOCKER_CLI_BUILD: 1
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run tests
+        run: |
+          cd watermarker
+          python manage.py test
+
+  deploy:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Create necessary directories
+        run: |
+          mkdir -p watermarker/logs
+          mkdir -p nginx/ssl
+          mkdir -p backups
+
+      - name: Generate Django Secret Key
+        id: secret_key
+        run: |
+          python -c 'from django.core.management.utils import get_random_secret_key; print("key=" + get_random_secret_key())' >> $GITHUB_OUTPUT
+
+      - name: Create .env file
+        run: |
+          echo "# Generated environment file for production deployment" > .env
+          echo "DJANGO_SECRET_KEY=${{ steps.secret_key.outputs.key }}" >> .env
+          echo "DJANGO_DEBUG=False" >> .env
+          echo "DJANGO_ALLOWED_HOSTS=${{ secrets.DJANGO_ALLOWED_HOSTS }}" >> .env
+          echo "POSTGRES_DB=${{ secrets.POSTGRES_DB }}" >> .env
+          echo "POSTGRES_USER=${{ secrets.POSTGRES_USER }}" >> .env
+          echo "POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}" >> .env
+          echo "REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}" >> .env
+          echo "DATABASE_URL=postgresql://${{ secrets.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}@db:5432/${{ secrets.POSTGRES_DB }}" >> .env
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push Docker images
+        run: |
+          docker compose build
+          docker compose push
+
+      - name: Deploy to production server
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT || 22 }}
+          script: |
+            set -e
+            echo "🚀 Starting Production Deployment..."
+            echo "=================================="
+            
+            # Navigate to project directory
+            cd /home/beb/PycharmProjects/watermarking
+            
+            # Pull latest code
+            git pull origin main
+            
+            # Check Docker daemon
+            echo "🐳 Checking Docker daemon..."
+            if ! docker info > /dev/null 2>&1; then
+              echo "❌ Docker daemon is not running. Starting Docker..."
+              sudo systemctl start docker
+              sleep 5
+            fi
+            
+            # Load environment variables
+            echo "��� Loading environment variables..."
+            export $(cat .env | grep -v '^#' | xargs)
+            
+            # Start database and Redis first
+            echo "🗄️  Starting database and Redis..."
+            docker compose up -d db redis
+            
+            # Wait for services to be ready
+            echo "⏳ Waiting for database to be ready..."
+            sleep 15
+            
+            # Check Redis connectivity (from start_asgi.sh functionality)
+            echo "🔍 Checking Redis connectivity..."
+            docker compose exec redis redis-cli ping || echo "Redis check failed, continuing..."
+            
+            # Pull latest images
+            echo "📥 Pulling latest Docker images..."
+            docker compose pull
+            
+            # Run database migrations
+            echo "📊 Running database migrations..."
+            docker compose run --rm web python manage.py makemigrations
+            docker compose run --rm web python manage.py migrate
+            
+            # Collect static files
+            echo "📂 Collecting static files..."
+            docker compose run --rm web python manage.py collectstatic --noinput
+            
+            # Start all services
+            echo "🚀 Starting all services..."
+            docker compose up -d
+            
+            # Health check
+            echo "🏥 Performing health check..."
+            sleep 10
+            
+            # Check if ASGI server is running (incorporating start_asgi.sh functionality)
+            echo "🌐 Checking ASGI server status..."
+            if docker compose ps web | grep -q "Up"; then
+              echo "✅ ASGI Blockchain Watermarker is running"
+              echo "   Access your blockchain watermarker at: http://${{ secrets.SSH_HOST }}"
+              echo "   WebSocket endpoints:"
+              echo "   - ws://${{ secrets.SSH_HOST }}/ws/blockchain/"
+              echo "   - ws://${{ secrets.SSH_HOST }}/ws/mining/"
+            else
+              echo "❌ ASGI server failed to start"
+              docker compose logs web
+              exit 1
+            fi
+            
+            echo ""
+            echo "✅ Deployment Complete!"
+            echo "======================="
+            echo "🌐 Application: http://${{ secrets.SSH_HOST }}"
+            echo "📊 Grafana: http://${{ secrets.SSH_HOST }}:3000"
+            echo "🔍 Prometheus: http://${{ secrets.SSH_HOST }}:9090"
+            echo "💾 Redis Insight: http://${{ secrets.SSH_HOST }}:8001"
+            echo "⚙️  Admin Panel: http://${{ secrets.SSH_HOST }}/admin"
+
+  cleanup:
+    needs: deploy
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Clean up old Docker images on server
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT || 22 }}
+          script: |
+            echo "🧹 Cleaning up old Docker images..."
+            docker system prune -f
+            docker image prune -f
