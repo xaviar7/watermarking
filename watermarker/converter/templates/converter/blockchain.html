@@ -1,78 +1,78 @@
 {% extends 'converter/base.html' %}
 
 {% block title %}
-Blockchain - Real-Time ASGI
+    Blockchain - Real-Time ASGI
 {% endblock title %}
 
 {% block content %}
-<div class="container">
-    <h1 class="mt-5">
-        Blockchain <span class="badge bg-success">ASGI Enabled</span>
-        <span id="connection-status" class="badge bg-secondary">Connecting...</span>
-    </h1>
+    <div class="container">
+        <h1 class="mt-5">
+            Blockchain <span class="badge bg-success">ASGI Enabled</span>
+            <span id="connection-status" class="badge bg-secondary">Connecting...</span>
+        </h1>
 
-    <!-- Real-Time Performance Metrics -->
-    <div class="row mb-4">
-        <div class="col-md-3">
-            <div class="card bg-primary text-white">
-                <div class="card-body">
-                    <h5>Chain Length</h5>
-                    <h3 id="chain-length">{{ length }}</h3>
-                    <small id="last-update"></small>
+        <!-- Real-Time Performance Metrics -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card bg-primary text-white">
+                    <div class="card-body">
+                        <h5>Chain Length</h5>
+                        <h3 id="chain-length">{{ length }}</h3>
+                        <small id="last-update"></small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-info text-white">
+                    <div class="card-body">
+                        <h5>Pending Transactions</h5>
+                        <h3 id="pending-transactions">0</h3>
+                        <small>Real-time updates</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-success text-white">
+                    <div class="card-body">
+                        <h5>Mining Status</h5>
+                        <h3 id="mining-status">Idle</h3>
+                        <small id="mining-progress">WebSocket connected</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-warning text-white">
+                    <div class="card-body">
+                        <h5>ASGI Features</h5>
+                        <h3>Active</h3>
+                        <small>Real-time & Async</small>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="card bg-info text-white">
-                <div class="card-body">
-                    <h5>Pending Transactions</h5>
-                    <h3 id="pending-transactions">0</h3>
-                    <small>Real-time updates</small>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card bg-success text-white">
-                <div class="card-body">
-                    <h5>Mining Status</h5>
-                    <h3 id="mining-status">Idle</h3>
-                    <small id="mining-progress">WebSocket connected</small>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card bg-warning text-white">
-                <div class="card-body">
-                    <h5>ASGI Features</h5>
-                    <h3>Active</h3>
-                    <small>Real-time & Async</small>
-                </div>
-            </div>
-        </div>
-    </div>
 
-    <!-- Real-time Mining Controls -->
-    <div class="row mb-3">
-        <div class="col-md-6">
-            <button id="async-mine-btn" class="btn btn-primary">
-                <i class="fas fa-rocket"></i> Async Mine Block (WebSocket)
-            </button>
-            <button id="refresh-blockchain" class="btn btn-info ms-2">
-                <i class="fas fa-sync"></i> Refresh Chain
-            </button>
-        </div>
-        <div class="col-md-6">
-            <div id="mining-logs" class="alert alert-dark" style="height: 100px; overflow-y: auto;">
-                <strong>Mining Console:</strong><br>
-                <div id="log-content">Ready for real-time mining...</div>
+        <!-- Real-time Mining Controls -->
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <button id="async-mine-btn" class="btn btn-primary">
+                    <i class="fas fa-rocket"></i> Async Mine Block (WebSocket)
+                </button>
+                <button id="refresh-blockchain" class="btn btn-info ms-2">
+                    <i class="fas fa-sync"></i> Refresh Chain
+                </button>
+            </div>
+            <div class="col-md-6">
+                <div id="mining-logs" class="alert alert-dark" style="height: 100px; overflow-y: auto;">
+                    <strong>Mining Console:</strong><br>
+                    <div id="log-content">Ready for real-time mining...</div>
+                </div>
             </div>
         </div>
-    </div>
 
-    <!-- Real-time Blockchain Table -->
-    <div class="table-responsive">
-        <table class="table table-striped" id="blockchain-table">
-            <thead>
+        <!-- Real-time Blockchain Table -->
+        <div class="table-responsive">
+            <table class="table table-striped" id="blockchain-table">
+                <thead>
                 <tr>
                     <th>Index</th>
                     <th>Timestamp</th>
@@ -81,152 +81,152 @@ Blockchain - Real-Time ASGI
                     <th>Transactions (ASGI Optimized)</th>
                     <th>Status</th>
                 </tr>
-            </thead>
-            <tbody id="blockchain-tbody">
+                </thead>
+                <tbody id="blockchain-tbody">
                 {% for block in chain %}
-                <tr data-block-index="{{ block.index }}">
-                    <td><span class="badge bg-secondary">{{ block.index }}</span></td>
-                    <td><small>{{ block.timestamp|slice:":19" }}</small></td>
-                    <td><code>{{ block.proof }}</code></td>
-                    <td><small><code>{{ block.previous_hash|slice:":16" }}...</code></small></td>
-                    <td>
-                        {% for tx in block.transactions %}
-                            <div class="mb-1">
-                                {% if tx.type == 'watermark' %}
-                                    <span class="badge bg-success text-white">
+                    <tr data-block-index="{{ block.index }}">
+                        <td><span class="badge bg-secondary">{{ block.index }}</span></td>
+                        <td><small>{{ block.timestamp|slice:":19" }}</small></td>
+                        <td><code>{{ block.proof }}</code></td>
+                        <td><small><code>{{ block.previous_hash|slice:":16" }}...</code></small></td>
+                        <td>
+                            {% for tx in block.transactions %}
+                                <div class="mb-1">
+                                    {% if tx.type == 'watermark' %}
+                                        <span class="badge bg-success text-white">
                                         📷 Watermark: {{ tx.r }} |
                                         Hash: {{ tx.img_hash|slice:":8" }} |
                                         Size: {{ tx.size }}b
                                     </span>
-                                {% else %}
-                                    <span class="badge bg-info text-white">
+                                    {% else %}
+                                        <span class="badge bg-info text-white">
                                         {{ tx.s }}
                                         →
                                         {{ tx.r }}
                                         : {{ tx.a }}
                                     </span>
-                                {% endif %}
-                            </div>
-                        {% empty %}
-                            <small class="text-muted">Genesis block</small>
-                        {% endfor %}
-                    </td>
-                    <td><span class="badge bg-success">Confirmed</span></td>
-                </tr>
+                                    {% endif %}
+                                </div>
+                                {% empty %}
+                                <small class="text-muted">Genesis block</small>
+                            {% endfor %}
+                        </td>
+                        <td><span class="badge bg-success">Confirmed</span></td>
+                    </tr>
                 {% endfor %}
-            </tbody>
-        </table>
+                </tbody>
+            </table>
+        </div>
     </div>
-</div>
 
-<script>
-// WebSocket connections for real-time updates
-const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-const blockchainSocket = new WebSocket(protocol + '//' + window.location.host + '/ws/blockchain/');
-const miningSocket = new WebSocket(protocol + '//' + window.location.host + '/ws/mining/');
+    <script>
+        // WebSocket connections for real-time updates
+        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const blockchainSocket = new WebSocket(protocol + '//' + window.location.host + '/ws/blockchain/');
+        const miningSocket = new WebSocket(protocol + '//' + window.location.host + '/ws/mining/');
 
-// Connection status management
-function updateConnectionStatus(status, color = 'success') {
-    const statusElement = document.getElementById('connection-status');
-    statusElement.textContent = status;
-    statusElement.className = `badge bg-${color}`;
-}
-
-// Logging function
-function addLog(message, type = 'info') {
-    const logContent = document.getElementById('log-content');
-    const timestamp = new Date().toLocaleTimeString();
-    const colorClass = type === 'error' ? 'text-danger' : type === 'success' ? 'text-success' : 'text-info';
-    logContent.innerHTML += `<div class="${colorClass}">[${timestamp}] ${message}</div>`;
-    document.getElementById('mining-logs').scrollTop = document.getElementById('mining-logs').scrollHeight;
-}
-
-// Blockchain WebSocket handlers
-blockchainSocket.onopen = function() {
-    updateConnectionStatus('Connected', 'success');
-    addLog('Blockchain WebSocket connected', 'success');
-    blockchainSocket.send(JSON.stringify({'type': 'get_stats'}));
-};
-
-blockchainSocket.onmessage = function(e) {
-    const data = JSON.parse(e.data);
-
-    if (data.type === 'blockchain_update') {
-        addLog(`Blockchain updated: ${data.message}`, 'success');
-        // Fix the table update - data.chain contains the full chain
-        if (data.chain && data.length) {
-            updateBlockchainTable(data.chain, data.length);
+        // Connection status management
+        function updateConnectionStatus(status, color = 'success') {
+            const statusElement = document.getElementById('connection-status');
+            statusElement.textContent = status;
+            statusElement.className = `badge bg-${color}`;
         }
-        document.getElementById('last-update').textContent = 'Just updated';
-    }
 
-    if (data.type === 'blockchain_stats') {
-        document.getElementById('chain-length').textContent = data.chain_length;
-        document.getElementById('pending-transactions').textContent = data.pending_transactions;
-    }
-};
+        // Logging function
+        function addLog(message, type = 'info') {
+            const logContent = document.getElementById('log-content');
+            const timestamp = new Date().toLocaleTimeString();
+            const colorClass = type === 'error' ? 'text-danger' : type === 'success' ? 'text-success' : 'text-info';
+            logContent.innerHTML += `<div class="${colorClass}">[${timestamp}] ${message}</div>`;
+            document.getElementById('mining-logs').scrollTop = document.getElementById('mining-logs').scrollHeight;
+        }
 
-blockchainSocket.onclose = function() {
-    updateConnectionStatus('Disconnected', 'danger');
-    addLog('Blockchain WebSocket disconnected', 'error');
-};
+        // Blockchain WebSocket handlers
+        blockchainSocket.onopen = function () {
+            updateConnectionStatus('Connected', 'success');
+            addLog('Blockchain WebSocket connected', 'success');
+            blockchainSocket.send(JSON.stringify({'type': 'get_stats'}));
+        };
 
-// Mining WebSocket handlers
-miningSocket.onopen = function() {
-    addLog('Mining WebSocket connected', 'success');
-};
+        blockchainSocket.onmessage = function (e) {
+            const data = JSON.parse(e.data);
 
-miningSocket.onmessage = function(e) {
-    const data = JSON.parse(e.data);
+            if (data.type === 'blockchain_update') {
+                addLog(`Blockchain updated: ${data.message}`, 'success');
+                // Fix the table update - data.chain contains the full chain
+                if (data.chain && data.length) {
+                    updateBlockchainTable(data.chain, data.length);
+                }
+                document.getElementById('last-update').textContent = 'Just updated';
+            }
 
-    if (data.type === 'mining_started') {
-        document.getElementById('mining-status').textContent = 'Mining';
-        document.getElementById('mining-progress').textContent = 'In progress...';
-        addLog(data.message, 'info');
-    }
+            if (data.type === 'blockchain_stats') {
+                document.getElementById('chain-length').textContent = data.chain_length;
+                document.getElementById('pending-transactions').textContent = data.pending_transactions;
+            }
+        };
 
-    if (data.type === 'mining_progress') {
-        document.getElementById('mining-progress').textContent = data.message;
-        addLog(data.message, 'info');
-    }
+        blockchainSocket.onclose = function () {
+            updateConnectionStatus('Disconnected', 'danger');
+            addLog('Blockchain WebSocket disconnected', 'error');
+        };
 
-    if (data.type === 'mining_completed') {
-        document.getElementById('mining-status').textContent = 'Completed';
-        document.getElementById('mining-progress').textContent = `Block ${data.block.index} mined!`;
-        addLog(data.message, 'success');
-        // Refresh blockchain data
-        blockchainSocket.send(JSON.stringify({'type': 'get_blockchain'}));
-    }
+        // Mining WebSocket handlers
+        miningSocket.onopen = function () {
+            addLog('Mining WebSocket connected', 'success');
+        };
 
-    if (data.type === 'mining_error') {
-        document.getElementById('mining-status').textContent = 'Error';
-        document.getElementById('mining-progress').textContent = 'Mining failed';
-        addLog(data.message, 'error');
-    }
-};
+        miningSocket.onmessage = function (e) {
+            const data = JSON.parse(e.data);
 
-// Update blockchain table
-function updateBlockchainTable(chain, length) {
-    if (chain && chain.length > 0) {
-        document.getElementById('chain-length').textContent = length;
+            if (data.type === 'mining_started') {
+                document.getElementById('mining-status').textContent = 'Mining';
+                document.getElementById('mining-progress').textContent = 'In progress...';
+                addLog(data.message, 'info');
+            }
 
-        // Update the actual table with new blocks
-        const tbody = document.getElementById('blockchain-tbody');
-        tbody.innerHTML = ''; // Clear existing rows
+            if (data.type === 'mining_progress') {
+                document.getElementById('mining-progress').textContent = data.message;
+                addLog(data.message, 'info');
+            }
 
-        chain.forEach(block => {
-            const row = document.createElement('tr');
-            row.setAttribute('data-block-index', block.index);
+            if (data.type === 'mining_completed') {
+                document.getElementById('mining-status').textContent = 'Completed';
+                document.getElementById('mining-progress').textContent = `Block ${data.block.index} mined!`;
+                addLog(data.message, 'success');
+                // Refresh blockchain data
+                blockchainSocket.send(JSON.stringify({'type': 'get_blockchain'}));
+            }
 
-            // Create transaction display with watermark metadata
-            let transactionHtml = '';
-            if (block.transactions && block.transactions.length > 0) {
-                block.transactions.forEach(tx => {
-                    const txType = tx.type || 'unknown';
-                    const badgeClass = tx.type === 'watermark' ? 'bg-success' : 'bg-info';
+            if (data.type === 'mining_error') {
+                document.getElementById('mining-status').textContent = 'Error';
+                document.getElementById('mining-progress').textContent = 'Mining failed';
+                addLog(data.message, 'error');
+            }
+        };
 
-                    if (tx.type === 'watermark') {
-                        transactionHtml += `
+        // Update blockchain table
+        function updateBlockchainTable(chain, length) {
+            if (chain && chain.length > 0) {
+                document.getElementById('chain-length').textContent = length;
+
+                // Update the actual table with new blocks
+                const tbody = document.getElementById('blockchain-tbody');
+                tbody.innerHTML = ''; // Clear existing rows
+
+                chain.forEach(block => {
+                    const row = document.createElement('tr');
+                    row.setAttribute('data-block-index', block.index);
+
+                    // Create transaction display with watermark metadata
+                    let transactionHtml = '';
+                    if (block.transactions && block.transactions.length > 0) {
+                        block.transactions.forEach(tx => {
+                            const txType = tx.type || 'unknown';
+                            const badgeClass = tx.type === 'watermark' ? 'bg-success' : 'bg-info';
+
+                            if (tx.type === 'watermark') {
+                                transactionHtml += `
                             <div class="mb-1">
                                 <span class="badge ${badgeClass} text-white">
                                     📷 Watermark: ${tx.r} |
@@ -234,20 +234,20 @@ function updateBlockchainTable(chain, length) {
                                     Size: ${tx.size || 0}b
                                 </span>
                             </div>`;
-                    } else {
-                        transactionHtml += `
+                            } else {
+                                transactionHtml += `
                             <div class="mb-1">
                                 <span class="badge ${badgeClass} text-white">
                                     ${tx.s || tx.sender} → ${tx.r || tx.receiver}: ${tx.a || tx.amount}
                                 </span>
                             </div>`;
+                            }
+                        });
+                    } else {
+                        transactionHtml = '<small class="text-muted">Genesis block</small>';
                     }
-                });
-            } else {
-                transactionHtml = '<small class="text-muted">Genesis block</small>';
-            }
 
-            row.innerHTML = `
+                    row.innerHTML = `
                 <td><span class="badge bg-secondary">${block.index}</span></td>
                 <td><small>${block.timestamp.slice(0, 19)}</small></td>
                 <td><code>${block.proof}</code></td>
@@ -256,58 +256,64 @@ function updateBlockchainTable(chain, length) {
                 <td><span class="badge bg-success">Confirmed</span></td>
             `;
 
-            tbody.appendChild(row);
+                    tbody.appendChild(row);
+                });
+            }
+        }
+
+        // Button event handlers
+        document.getElementById('async-mine-btn').addEventListener('click', function () {
+            miningSocket.send(JSON.stringify({'type': 'start_mining'}));
+            addLog('Async mining requested via WebSocket', 'info');
         });
-    }
-}
 
-// Button event handlers
-document.getElementById('async-mine-btn').addEventListener('click', function() {
-    miningSocket.send(JSON.stringify({'type': 'start_mining'}));
-    addLog('Async mining requested via WebSocket', 'info');
-});
+        document.getElementById('refresh-blockchain').addEventListener('click', function () {
+            blockchainSocket.send(JSON.stringify({'type': 'get_blockchain'}));
+            addLog('Blockchain refresh requested', 'info');
+        });
 
-document.getElementById('refresh-blockchain').addEventListener('click', function() {
-    blockchainSocket.send(JSON.stringify({'type': 'get_blockchain'}));
-    addLog('Blockchain refresh requested', 'info');
-});
+        // Auto-refresh stats every 5 seconds
+        setInterval(function () {
+            if (blockchainSocket.readyState === WebSocket.OPEN) {
+                blockchainSocket.send(JSON.stringify({'type': 'get_stats'}));
+            }
+        }, 5000);
 
-// Auto-refresh stats every 5 seconds
-setInterval(function() {
-    if (blockchainSocket.readyState === WebSocket.OPEN) {
-        blockchainSocket.send(JSON.stringify({'type': 'get_stats'}));
-    }
-}, 5000);
-
-// Initial log
-addLog('ASGI Blockchain system initialized', 'success');
-</script>
+        // Initial log
+        addLog('ASGI Blockchain system initialized', 'success');
+    </script>
 
 {% endblock content %}
 
 {% block styles %}
-<style>
-    .badge {
-        font-size: 0.9rem;
-    }
-    .card {
-        margin-bottom: 1rem;
-    }
-    #mining-logs {
-        max-height: 200px;
-        overflow-y: auto;
-    }
-    #blockchain-table th, #blockchain-table td {
-        vertical-align: middle;
-    }
-    #blockchain-table th {
-        text-align: center;
-    }
-    #blockchain-table td {
-        text-align: center;
-    }
-    .table-responsive {
-        margin-top: 1rem;
-    }
-</style>
+    <style>
+        .badge {
+            font-size: 0.9rem;
+        }
+
+        .card {
+            margin-bottom: 1rem;
+        }
+
+        #mining-logs {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        #blockchain-table th, #blockchain-table td {
+            vertical-align: middle;
+        }
+
+        #blockchain-table th {
+            text-align: center;
+        }
+
+        #blockchain-table td {
+            text-align: center;
+        }
+
+        .table-responsive {
+            margin-top: 1rem;
+        }
+    </style>
 {% endblock styles %}
