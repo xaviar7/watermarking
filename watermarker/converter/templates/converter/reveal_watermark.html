@@ -1,0 +1,43 @@
+{% extends 'converter/base.html' %}
+{% block title %}Reveal Watermark{% endblock title %}
+
+{% block content %}
+    <div class="col-md-8 col-lg-6">
+      <div class="card shadow">
+        <div class="card-body">
+          <h1 class="card-title text-center mb-4">Reveal Watermark</h1>
+          <p class="text-center text-muted mb-4">Upload an image to extract its hidden watermark message.</p>
+          
+          <form method="post" enctype="multipart/form-data" action="{% url 'reveal_watermark' %}">
+            {% csrf_token %}
+            
+            <div class="mb-3">
+              <label for="image" class="form-label">Upload Watermarked Image</label>
+              <input type="file" name="image" id="image" class="form-control" accept="image/*" required>
+              <div class="form-text">Choose an image that contains a hidden watermark to reveal its secret message.</div>
+            </div>
+            
+            <div class="d-grid">
+              <button type="submit" class="btn btn-success btn-lg">
+                <i class="bi bi-search me-2"></i>Reveal Watermark
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      {% if revealed_message %}
+        <div class="card shadow mt-4">
+          <div class="card-body">
+            <h2 class="card-title text-success">
+              <i class="bi bi-check-circle me-2"></i>Revealed Message
+            </h2>
+            <div class="alert alert-success" role="alert">
+              <strong>Secret Message:</strong> {{ revealed_message }}
+            </div>
+          </div>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+{% endblock content %}
