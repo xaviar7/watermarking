@@ -1,56 +1,64 @@
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="dark">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
 
-  <title>
-    {% block title %}
-    
-    {% endblock title %}
-  </title>
+    <title>
+        {% block title %}
 
-  <style>
-    body {
-      padding: 0;
-    }
-    .container-main {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 2rem;
-    }
-    .navbar .container {
-      max-width: 1200px;
-    }
-    br{
-      margin-bottom: 30px;
-    }
-  </style>
+        {% endblock title %}
+    </title>
+
+    <style>
+        body {
+            padding: 0;
+        }
+
+        .container-main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .navbar .container {
+            max-width: 1200px;
+        }
+
+        br {
+            margin-bottom: 30px;
+        }
+    </style>
 
 </head>
 <body>
-  <!-- Responsive Navbar -->
-  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+<!-- Responsive Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container">
-      <a class="navbar-brand fw-bold" href="{% url 'watermark' %}">WaterMarker</a>
-      
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      
-      <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav ms-auto">
-          <li class="nav-item">
-            <a class="nav-link" href="{% url 'watermark' %}">Add Watermark</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="{% url 'reveal_watermark' %}">Reveal Watermark</a>
-          </li>
-        </ul>
-      </div>
+        <a class="navbar-brand fw-bold" href="{% url 'watermark' %}">WaterMarker</a>
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'watermark' %}">Add Watermark</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'reveal_watermark' %}">Reveal Watermark</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'blockchain' %}">Blockchain...</a>
+                </li>
+            </ul>
+        </div>
     </div>
-  </nav>
+</nav>
 
   <div class="container-main">
   <div class="row justify-content-center">
@@ -67,9 +75,11 @@
     </div>
 
     {% block content %}
-    
+
     {% endblock content %}
-  </div>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+        crossorigin="anonymous"></script>
 </body>
 </html>

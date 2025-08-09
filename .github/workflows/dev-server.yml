@@ -1,0 +1,64 @@
+name: Development Server
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        default: 'development'
+        type: choice
+        options:
+        - development
+        - staging
+
+jobs:
+  start-dev-server:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Start Redis
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y redis-server
+          sudo systemctl start redis-server
+          redis-cli ping
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Setup Django
+        run: |
+          cd watermarker
+          python manage.py makemigrations
+          python manage.py migrate
+          python manage.py collectstatic --noinput
+
+      - name: Start ASGI Development Server
+        run: |
+          cd watermarker
+          echo "🚀 Starting ASGI Blockchain Watermarker..."
+          echo "============================================"
+          echo "✅ Redis server is running"
+          echo "📦 Dependencies installed"
+          echo "🗄️  Database migrations completed"
+          echo "🌐 Starting Daphne ASGI server on port 8000..."
+          echo "   Access your blockchain watermarker at: http://127.0.0.1:8000"
+          echo "   WebSocket endpoints:"
+          echo "   - ws://127.0.0.1:8000/ws/blockchain/"
+          echo "   - ws://127.0.0.1:8000/ws/mining/"
+          echo ""
+          echo "Press Ctrl+C to stop the server"
+          echo "============================================"
+          daphne -p 8000 watermarker.asgi:application &
+          sleep 10
+          curl -f http://127.0.0.1:8000 || echo "Server health check failed"

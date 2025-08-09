@@ -1,0 +1,35 @@
+# Git
+.git
+.gitignore
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+pip-wheel-metadata/
+.venv/
+venv/
+env/
+
+# IDEs and editors
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Local development files
+.env
+db.sqlite3
+*.log
+backups/
+local_settings.py
+
+# Docker
+Dockerfile
+docker-compose.yml
+
+# Documentation
+README.md
+
