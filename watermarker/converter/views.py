@@ -115,10 +115,14 @@ def async_mine_block():
                 print(f"Mining error: {e}")
 
 
+# Add imports for QR code reading
+from PIL import Image as PILImage
+from pyzbar.pyzbar import decode
+
 def watermark(request):
     if request.method == 'POST':
-        image_file = request.FILES.get('image')
-        secret_message = request.POST.get('secret_message')
+        image = request.FILES.get('image')
+        qr_code_file = request.FILES.get('qr_code')  # Expecting a file input named 'qr_code'
 
         if not image_file:
             return JsonResponse({'error': 'No image file provided.'}, status=400)
@@ -133,15 +137,20 @@ def watermark(request):
             for chunk in image_file.chunks():
                 destination.write(chunk)
 
-        # --- Start Validation ---
-        try:
-            # Verify the uploaded file is a valid image
-            with PILImage.open(original_path) as img:
-                img.verify()
-        except (UnidentifiedImageError, FileNotFoundError):
-            os.remove(original_path)  # Clean up the invalid file
-            return JsonResponse({'error': 'Invalid or corrupted image file.'}, status=400)
-        # --- End Validation ---
+        # Save the uploaded QR code image to disk
+        qr_filename = f'qr_{uuid.uuid4()}_{qr_code_file.name}'
+        qr_path = os.path.join(settings.MEDIA_ROOT, 'qr_codes', qr_filename)
+        os.makedirs(os.path.dirname(qr_path), exist_ok=True)
+        with open(qr_path, 'wb+') as destination:
+            for chunk in qr_code_file.chunks():
+                destination.write(chunk)
+
+        # Extract text from the QR code image
+        qr_img = PILImage.open(qr_path)
+        decoded_objs = decode(qr_img)
+        if not decoded_objs:
+            return render(request, 'converter/watermark.html', {'error': 'Could not decode QR code.'})
+        secret_message = decoded_objs[0].data.decode('utf-8')
 
         # Use the saved file path for watermarking
         watermarked_image = lsb.hide(original_path, secret_message, auto_convert_rgb=True)

@@ -2,35 +2,34 @@
 {% block title %}Watermark{% endblock title %}
 
 {% block content %}
-    <div class="row justify-content-center">
-        <div class="col-md-8 col-lg-6">
-            <div class="card shadow">
-                <div class="card-body">
-                    <h1 class="card-title text-center mb-4">Watermark an Image</h1>
 
-                    <form method="post" enctype="multipart/form-data" action="{% url 'watermark' %}">
-                        {% csrf_token %}
+    <div class="col-md-8 col-lg-6">
+      <div class="card shadow">
+        <div class="card-body">
+          <h1 class="card-title text-center mb-4">Watermark an Image</h1>
+          
+          <form method="post" enctype="multipart/form-data" action="{% url 'watermark' %}">
+            {% csrf_token %}
+            
+            <div class="mb-3">
+              <label for="image" class="form-label">Upload Image</label>
+              <input type="file" name="image" id="image" class="form-control" accept="image/*" required>
+              <div class="form-text">Choose an image file to add a watermark to.</div>
+            </div>
+            
+            
+            <div class="mb-3">
+              <label for="qr_code" class="form-label">Upload secret Qr Code</label>
+              <input type="file" name="qr_code" id="qr_code" class="form-control" accept="image/*" required>
+              <div class="form-text">Choose a QR code image file to use as a watermark.</div>
+            </div>
+            
 
-                        <div class="mb-3">
-                            <label for="image" class="form-label">Upload Image</label>
-                            <input type="file" name="image" id="image" class="form-control" accept="image/*" required>
-                            <div class="form-text">Choose an image file to add a watermark to.</div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="secret_message" class="form-label">Secret Message</label>
-                            <input type="text" name="secret_message" id="secret_message" class="form-control"
-                                   placeholder="Enter your secret message" required>
-                            <div class="form-text">This message will be embedded as a watermark in your image.</div>
-                        </div>
-
-                        <div class="d-grid">
-                            <button type="submit" class="btn btn-primary btn-lg">
-                                <i class="bi bi-shield-plus me-2"></i>Add Watermark
-                            </button>
-                        </div>
-                    </form>
-                </div>
+            
+            <div class="d-grid">
+              <button type="submit" class="btn btn-primary btn-lg">
+                <i class="bi bi-shield-plus me-2"></i>Add Watermark
+              </button>
             </div>
         </div>
     </div>

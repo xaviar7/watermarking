@@ -60,8 +60,19 @@
     </div>
 </nav>
 
-<div class="container-main">
-
+  <div class="container-main">
+  <div class="row justify-content-center">
+    <div class="col-md-4 col-lg-3">
+      <div class="card shadow">
+        <div class="card-body">
+          <p class="text-muted mb-4">Add a watermark to your image by embedding a secret message.</p>
+          <a href="{% url 'watermark' %}" class="text-primary mb-2">Go to Watermark</a>
+          <br>
+          <a href="{% url 'reveal_watermark' %}" class="text-primary">Reveal Watermark</a>
+          
+        </div>
+      </div>
+    </div>
 
     {% block content %}
 
